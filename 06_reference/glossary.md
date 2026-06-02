@@ -1,0 +1,68 @@
+# 06 — Glossary (A–Z, one line each)
+
+Every term used across this repo, defined in one sentence. Skim it; if a term isn't obvious, open the lesson it belongs to.
+
+---
+
+- **`async def`** — defines a coroutine function; calling it returns a coroutine that doesn't run until awaited or scheduled.
+- **AST (Abstract Syntax Tree)** — the tree-structured representation of source code; what you analyze to ask structural questions about code.
+- **`async` / `await`** — `await x` pauses the current coroutine and hands control to the event loop until `x` is done.
+- **asyncio** — Python's standard library for single-threaded concurrency via an event loop.
+- **author_association** — GitHub label showing a commenter's relationship to a repo (OWNER/MEMBER have power; CONTRIBUTOR/NONE don't).
+- **B006** — flake8-bugbear/Ruff code for "mutable default argument."
+- **Backbone** — a pretrained CNN reused as a feature extractor (research paper term).
+- **black** — an opinionated Python code formatter; enforces consistent style automatically.
+- **Blocking call** — a synchronous operation that holds the worker until it finishes; disastrous inside an async function.
+- **Branch** — a parallel line of commits; you make one per change so `main` stays clean.
+- **CI (Continuous Integration)** — automatically running tests/lint/type-checks on every PR.
+- **CLA (Contributor License Agreement)** — a one-time legal sign-off some projects require before merging your code.
+- **Calibration** — whether a model's confidence matches its actual accuracy (research term; ECE measures it).
+- **Clone** — download a repo from GitHub to your computer.
+- **Commit** — a saved snapshot of changes with a message.
+- **Concurrency** — one worker switching between many tasks so all progress (vs parallelism = many at once).
+- **Context manager** — the `with` construct that guarantees setup/cleanup (e.g. closing a file) even on exceptions.
+- **Coroutine** — the object an `async def` returns; runnable work that hasn't started.
+- **create_task** — `asyncio.create_task(coro)` schedules a coroutine to run concurrently and returns a Task; the loop only weakly references it.
+- **Deprecated** — still works but officially discouraged and slated for removal (e.g. `get_event_loop`, `datetime.utcnow`).
+- **Diff** — the added (`+`) and removed (`-`) lines of a change; what reviewers read.
+- **ECE (Expected Calibration Error)** — a number summarizing how mis-calibrated a model is.
+- **Event loop** — asyncio's single worker that runs tasks and switches between them at `await` points.
+- **Fire-and-forget task** — a `create_task` whose result is discarded, so GC can delete it before it finishes.
+- **Fork** — your personal copy of someone else's repo on GitHub.
+- **Garbage collection (GC)** — Python automatically freeing objects nothing references anymore.
+- **get_event_loop / get_running_loop** — old (deprecated) vs modern way to obtain the event loop.
+- **GitHub Actions** — GitHub's built-in CI system, configured via `.github/workflows/*.yml`.
+- **Grad-CAM** — a technique to visualize which image regions a CNN focused on (research term).
+- **Issue** — a reported bug or feature request; a discussion, not code.
+- **Linter** — a tool (`ruff`) that flags code-quality and style problems.
+- **main / master** — the primary branch holding the official current code.
+- **Maintainer** — a person with permission to merge into the real repo.
+- **Merge** — combining a branch's changes into another; "merging your PR" = your code enters the project.
+- **Mutable / immutable** — can / cannot be changed in place; lists/dicts are mutable, ints/strings/tuples are not.
+- **mypy** — a static type checker for Python.
+- **OSError** — Python exception family for OS/filesystem/network errors (e.g. broken symlink, file not found).
+- **Parallelism** — literally running multiple things at once on multiple cores (different from concurrency).
+- **Parent map** — a child→parent dictionary built over an AST so checks can walk upward.
+- **Pull / push** — download / upload commits between your computer and a remote.
+- **Pull Request (PR)** — a proposal to merge your branch into a project.
+- **Pull Shark** — a GitHub badge for getting PRs merged.
+- **pytest** — Python's test runner; finds and runs `test_*` functions.
+- **Reference (strong/weak)** — strong keeps an object alive against GC; weak doesn't.
+- **Regression test** — a test that fails if a previously-fixed bug returns.
+- **Remote** — a copy of the repo elsewhere (usually GitHub); default name `origin`.
+- **Repository (repo)** — a project tracked by git.
+- **Resource** — anything acquired and must be released (files, sockets, locks, DB connections).
+- **RLIMIT_NOFILE** — the OS limit on how many file handles a process may hold open at once.
+- **RUF006** — Ruff's code for "discarded asyncio task" (the fire-and-forget bug).
+- **ruff** — a fast Python linter (and formatter); implements B006, RUF006, etc.
+- **Squash / rebase** — ways to tidy commit history before merging.
+- **Stars (⭐)** — how many people bookmarked a repo; a rough popularity signal.
+- **Static analysis** — examining code without running it (what codehound does); opposite of dynamic.
+- **Strong reference** — a normal reference that prevents garbage collection.
+- **Task** — a coroutine the event loop is actively running in the background.
+- **Temperature scaling** — a post-hoc calibration method (divide logits by a learned T).
+- **Transfer learning** — reusing a model pretrained on a big dataset and fine-tuning it on your smaller task.
+- **Traceback** — the printout of the call stack when an error occurs.
+- **Type hint** — annotations like `x: int` describing expected types; checked by mypy.
+- **Upstream** — the original/official repo you contribute to (vs your fork).
+- **with statement** — see *context manager*.
