@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ MERGED (7)
+## ✅ MERGED (9)
 
 ### 1. huggingface_hub #4289 — *shipped in v1.17.0*
 - **What:** 4 public API parameters (`token`, `endpoint`, `maxdepth`, `original_order`) were undocumented — users couldn't tell they existed.
@@ -38,9 +38,25 @@
 - **Why it stands out:** a *feature*, not a bug fix — a maintainer trusted your API design. The review taught you to isolate callable-filter errors to `OSError` (so one broken file doesn't hide the rest) and centralize logic.
 - **Status:** Merged by maintainer @kirangadhave. (marimo = 11k⭐, YC.)
 
+### 8. mem0 #5302 — mutable default arguments (B006)
+- **What:** mutable defaults in `Completions.create` and `BaseEmbedderConfig` — the same dict/list shared across every call.
+- **Fix:** default to `None`, build a fresh one inside the body; added a regression test.
+- **Status:** Merged by maintainer @kartik-mem0. (mem0 = 35k⭐.) Deep dive: [02_python/02_functions_args_defaults.md](../02_python/02_functions_args_defaults.md).
+
+### 9. accelerate #4051 — missing public-API parameters
+- **What:** documented undocumented params in `load_accelerator_state`, `find_executable_batch_size`, and `send_to_device`.
+- **Status:** Merged by maintainer @SunMarc. (HuggingFace accelerate = 8k⭐.) Type: docs.
+
 ---
 
 ## 🟢 OPEN — real bug fixes awaiting review
+
+### Future AGI #821 — fire-and-forget tasks in PromptStreamConsumer ⭐⭐⭐ (codehound found it · FOUNDER-INVITED)
+- **What:** their WebSocket consumer ran every prompt execute/improve/generate via bare `asyncio.create_task(...)` and discarded the task. asyncio only weak-references tasks, so the GC could collect one mid-run → a user's prompt execution silently drops (no result, no error).
+- **Fix:** a `_spawn()` helper that adds each task to a `self._background_tasks` set (strong ref) and removes it via `add_done_callback` on completion; cancel leftovers on `disconnect()`.
+- **Why it's huge:** Future AGI's **founder Nikhil Pareek personally invited me to contribute** after seeing my agno/phidata work. This is my first PR to his repo — opened issue #819 + PR #821 the same day. An AI-*reliability* company, and the bug is a silent reliability hole in their own stack.
+- **The 2-sentence explanation (memorize):** *"They fired background tasks without keeping a reference, and asyncio only weak-references tasks, so the GC could collect them mid-run and silently drop a request. I store each task in a set and discard it on completion, so it stays alive until it's actually done."*
+- **Deep dive:** [03_async/04_fire_and_forget_tasks.md](../03_async/04_fire_and_forget_tasks.md).
 
 ### OpenAI #3553 — fire-and-forget tasks in RealtimeSession ⭐⭐ (codehound found it)
 - **What:** 3 discarded `create_task` calls could drop error events. **Fix:** strong-reference helper.
@@ -61,7 +77,7 @@
 ---
 
 ## 🟢 OPEN — earlier (docs/smaller, across many orgs)
-crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · mem0 #5302 (B006) · PyTorch torchtune #2964 · HuggingFace PEFT/datasets/accelerate · pydantic-ai · instructor · llama_index. These built your **org diversity** (18+ organizations).
+crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · PyTorch torchtune #2964 · HuggingFace PEFT/datasets · pydantic-ai · instructor · llama_index. These built your **org diversity** (18+ organizations).
 
 ---
 
@@ -75,4 +91,4 @@ crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · mem0 #
 ---
 
 ## The numbers (as of June 2026)
-**7 merged** · **~6 open real-bug PRs** · **18+ organizations** · **codehound: a bug it found is merged into agno, more flagged at OpenAI/litellm.**
+**9 merged** · **6 open real-bug PRs** · **18+ organizations** · **codehound: a bug it found is merged into agno, more flagged at OpenAI, litellm, and Future AGI (founder-invited).**

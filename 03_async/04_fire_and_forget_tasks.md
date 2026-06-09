@@ -1,6 +1,6 @@
-# 03.4 — Fire-and-Forget Tasks (OpenAI #3553, litellm #29417, agno #8183)
+# 03.4 — Fire-and-Forget Tasks (Future AGI #821, OpenAI #3553, litellm #29417, agno #8183)
 
-> Goal: understand the subtlest bug you fixed — discarded asyncio tasks getting garbage-collected. This appears in THREE of your PRs, including the official OpenAI one.
+> Goal: understand the subtlest bug you fixed — discarded asyncio tasks getting garbage-collected. This appears in FOUR of your PRs, including the official OpenAI one **and your founder-invited Future AGI PR #821** (a WebSocket consumer that silently drops a user's prompt execution if the task is GC'd mid-run).
 
 ---
 
