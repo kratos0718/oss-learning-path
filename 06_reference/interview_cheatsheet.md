@@ -5,7 +5,10 @@
 ---
 
 ## "Tell me about your open-source work."
-> *"Over the last few weeks I've had 7 PRs merged into major AI/ML projects — HuggingFace (shipped in a production release), pydantic, marimo, and agno — plus open PRs to OpenAI's Agents SDK and litellm, across 18+ organizations. Most are real correctness and async-safety bugs, not typos. And I built a static analyzer called codehound that found some of them — including one that's now merged into agno."*
+> *"I've had 12 PRs merged into major AI/ML projects — HuggingFace (hub shipped in a production release, plus accelerate and peft), unsloth, xorbitsai/inference, pydantic, marimo, mem0, and agno — plus open PRs to vLLM, Microsoft autogen, and OpenAI's Agents SDK, across 18+ organizations. Most are real correctness and async-safety bugs, not typos. And I built a static analyzer called codehound that found several of them — two are now merged into prestige-tier repos: unsloth (40k stars) and xorbitsai/inference."*
+
+## "Give me a concrete example of knowing *which* fix to apply."
+> *"Same bug class — a blocking requests.get freezing an async event loop — came up in two repos. In agno's Discord handler the library (discord.py) had a native async download, so I switched to await media.read(). In xorbitsai/inference there was no async equivalent available, so instead of a risky rewrite I wrapped the exact same call in await asyncio.to_thread, which offloads the blocking I/O to a thread while the loop stays free. Both merged. The skill isn't memorizing one fix — it's matching the fix to what the codebase actually gives you."*
 
 ## "What's the most interesting bug you fixed?"
 > *"A blocking time.sleep inside an async function in agno's vector store. asyncio runs on a single event loop that can only switch tasks at an await — so a synchronous sleep freezes every other task for its whole duration: model streams, tool calls, the agent loop. I replaced it with await asyncio.sleep, which yields to the loop. It matched a pattern the maintainers already used elsewhere in the same file, and they merged it."*
