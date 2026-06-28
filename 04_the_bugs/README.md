@@ -4,7 +4,7 @@
 
 ---
 
-## ✅ MERGED (10)
+## ✅ MERGED (12)
 
 ### 1. unsloth #6135 — blocking `time.sleep` in async ⭐⭐ (codehound found it)
 - **What:** the model-export route's `load_checkpoint` (an async FastAPI handler) waited for a training subprocess to exit with `time.sleep(0.5)` in a loop — up to **30s of blocking** inside async, freezing the whole event loop (every other request stalls).
@@ -53,6 +53,20 @@
 ### 10. accelerate #4051 — missing public-API parameters
 - **What:** documented undocumented params in `load_accelerator_state`, `find_executable_batch_size`, and `send_to_device`.
 - **Status:** Merged by maintainer @SunMarc. (HuggingFace accelerate = 8k⭐.) Type: docs.
+
+### 11. xorbitsai/inference #5055 — blocking `requests.get` in an async actor ⭐⭐ (codehound found it)
+- **What:** `update_model_type` is an **async method on a Xoscar worker actor**. It downloaded a JSON model registry from a remote URL with a synchronous `requests.get(url, timeout=30)`. Because an actor runs everything on one event loop, that call could **freeze the entire worker for up to 30 seconds** — every other request that worker was serving (inference, health checks, model loads) stalls behind one slow HTTP download.
+- **Fix:** `response = await asyncio.to_thread(requests.get, url, timeout=30)` — keep the exact same `requests` call, but push it onto a worker thread so the event loop stays free to serve everyone else. No new dependency, minimal diff.
+- **Why it stands out:** **second codehound-discovered bug merged into the prestige tier** (after unsloth) — merged by maintainer @qinxuye into a 9k⭐ inference server. Same bug *class* as unsloth #6135 / sglang #28029, but the fix is the `asyncio.to_thread` variant (use it when you must keep a sync call you can't rewrite).
+- **The 2-sentence explanation (memorize):** *"An async actor method downloaded a registry with a blocking requests.get on a 30-second timeout, which freezes the whole worker's event loop so every other request stalls. I wrapped the exact same call in await asyncio.to_thread, offloading the blocking I/O to a thread while the loop stays responsive."*
+- **Deep dive:** [03_async/03_blocking_the_loop.md](../03_async/03_blocking_the_loop.md) (see "offload to a thread").
+
+### 12. huggingface/peft #3271 — wrong parameter name in docstrings ⭐
+- **What:** `set_requires_grad` (the public API for enabling/disabling adapter gradients) documented its argument as `adapter_name`, but the **actual parameter is `adapter_names`** (plural). A developer who copied the documented kwarg — `set_requires_grad(adapter_name=...)` — gets a `TypeError: unexpected keyword argument`. The wrong name appeared at **4 sites** (`peft_model.py`, two in `tuners_utils.py`, the module-level helper in `other.py`); one also had a copy-paste description ("the adapter should be deleted") that I corrected to match what the function does.
+- **Fix:** renamed `adapter_name` → `adapter_names` in every docstring `Args:` block and fixed the stray wrong description.
+- **Why it stands out:** docs, but **correctness docs** — the documented signature literally didn't match the code, so anyone following it would hit an error. Merged by maintainer @githubnemo into PEFT (21k⭐, the standard LoRA/fine-tuning library). Shows attention to public-API contracts, not just typos.
+- **The 1-sentence explanation:** *"The docstring named the parameter adapter_name but the real one is adapter_names, so anyone using the documented kwarg would crash — I fixed it across all four occurrences."*
+- **Type:** docs (API-accuracy).
 
 ---
 
@@ -110,7 +124,7 @@
 ---
 
 ## 🟢 OPEN — earlier (docs/smaller, across many orgs)
-crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · PyTorch torchtune #2964 · HuggingFace PEFT/datasets · pydantic-ai · instructor · llama_index. These built your **org diversity** (18+ organizations).
+crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · PyTorch torchtune #2964 · HuggingFace datasets · pydantic-ai · instructor · llama_index. These built your **org diversity** (18+ organizations). *(HuggingFace PEFT moved up — #3271 merged, see MERGED list.)*
 
 ---
 
@@ -125,4 +139,4 @@ crewAI #5969/#5970/#5968 (deprecated APIs + docs, coderabbit-approved) · PyTorc
 ---
 
 ## The numbers (as of June 2026)
-**10 merged** · **11 open real-bug PRs** · **18+ organizations** · **codehound: bugs it found are merged into unsloth (40k⭐) and agno (25k⭐); more flagged at vLLM, Microsoft autogen, sglang, jina, khoj, OpenAI, litellm, and Future AGI (founder-invited).**
+**12 merged** · **~13 open real-bug PRs** · **18+ organizations** · **codehound: bugs it found are merged into unsloth (40k⭐), xorbitsai/inference (9k⭐), and agno (25k⭐); more flagged at vLLM, Microsoft autogen, sglang, jina, khoj, OpenAI, litellm, and Future AGI (founder-invited).**

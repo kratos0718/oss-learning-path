@@ -1,6 +1,6 @@
-# 03.3 — Blocking the Event Loop (agno #8158 and #8186)
+# 03.3 — Blocking the Event Loop (agno #8158, #8186 · xorbitsai/inference #5055)
 
-> Goal: deeply understand your two strongest bug fixes — the blocking `time.sleep` and blocking `requests.get` inside async functions.
+> Goal: deeply understand your strongest bug fixes — blocking `time.sleep` and blocking `requests.get` inside async functions — and the two ways to fix them (async equivalent vs. offload to a thread).
 
 ---
 
@@ -68,11 +68,35 @@ This one is special: **codehound found it.** Its CH001 check flags blocking call
 
 ---
 
+## 🐞 BUG 3: blocking `requests.get` in an async actor (xorbitsai/inference #5055 — codehound found this one too)
+
+xorbitsai/inference is an LLM serving framework. Its workers are **Xoscar actors** — each actor processes its messages on a single event loop. The worker's async `update_model_type` downloaded a JSON model registry like this:
+
+```python
+async def update_model_type(self, model_type: str):
+    ...
+    # Download JSON from remote API
+    response = requests.get(url, timeout=30)   # ← BLOCKING, inside an async actor method
+    response.raise_for_status()
+```
+
+Same disease as BUG 2, higher stakes: because the actor runs everything on one loop, that synchronous `requests.get` — **with a 30-second timeout** — could freeze the *entire worker*. While it waits on one slow HTTP download, every other thing that worker is doing (serving inference, health checks, loading other models) is stuck behind it.
+
+### The fix — when you can't swap the library, offload it
+```python
+response = await asyncio.to_thread(requests.get, url, timeout=30)
+```
+Here I **kept the exact same `requests.get` call** but handed it to `asyncio.to_thread`, which runs it on a background thread and gives you an awaitable. The event loop is now free during the download. This is the right tool when rewriting to an async HTTP client (`httpx`) would be a bigger, riskier change than the bug warrants — minimal diff, no new dependency.
+
+**Why it matters:** this is the **second codehound-found bug merged into the prestige tier** (after unsloth #6135), merged by maintainer @qinxuye into a 9k⭐ serving framework. Same bug class as BUG 2, *different fix*: BUG 2 had a native async method available (`media.read()`), so I used it; here there was none, so I offloaded to a thread. **Knowing which fix to reach for is the actual skill.**
+
+---
+
 ## How do you fix blocking calls in general?
 
 Three options:
-1. **Use the async equivalent** — `await asyncio.sleep` instead of `time.sleep`; `httpx.AsyncClient` or a library's native async method instead of `requests`. (What you did.)
-2. **Offload to a thread** — `await loop.run_in_executor(None, blocking_func)` runs the blocking call in a separate thread so the loop stays free. (Used in ragas's code.)
+1. **Use the async equivalent** — `await asyncio.sleep` instead of `time.sleep`; `httpx.AsyncClient` or a library's native async method instead of `requests`. (agno #8158, #8186.)
+2. **Offload to a thread** — `await asyncio.to_thread(blocking_func, *args)` (Python 3.9+) or the older `await loop.run_in_executor(None, blocking_func)` runs the blocking call in a separate thread so the loop stays free. **Use this when you must keep a sync call you can't easily rewrite** (xorbitsai/inference #5055, sglang #28029, khoj #1342).
 3. Redesign so the slow thing isn't on the loop at all.
 
 ---

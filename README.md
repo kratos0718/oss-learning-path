@@ -1,6 +1,6 @@
 # 🧭 OSS Learning Path — From 0 to Defending My Contributions
 
-**Who this is for:** me. I made real open-source contributions (7 merged into HuggingFace, pydantic, marimo, agno; open PRs to OpenAI, litellm; built a static analyzer called codehound). This repo explains **every single concept** behind that work, from absolute zero, so I can *understand and defend* it — in interviews, in conversations, in my own head.
+**Who this is for:** me. I made real open-source contributions (12 merged into HuggingFace hub/accelerate/peft, pydantic, marimo, mem0, unsloth, xorbitsai/inference, agno; open PRs to vLLM, Microsoft autogen, OpenAI, litellm; built a static analyzer called codehound). This repo explains **every single concept** behind that work, from absolute zero, so I can *understand and defend* it — in interviews, in conversations, in my own head.
 
 **How to read it:** top to bottom, in order. Each file builds on the last. Every term is defined the first time it appears. Nothing is assumed.
 
